@@ -2,59 +2,41 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import {
   IsEmail,
-  IsString,
+  IsEnum,
   IsOptional,
   IsUrl,
   MaxLength,
-  IsEnum,
+  MinLength,
 } from 'class-validator';
 
 export class UserCreateDto {
-  @ApiProperty({
-    description: 'Email address of the user',
-    example: 'user@example.com',
-  })
+  @ApiProperty({ example: 'user@example.com' })
+  @IsEmail()
   @MaxLength(50)
-  @IsEmail({}, { message: 'Email must be valid' })
   email: string;
 
-  @ApiProperty({
-    description: 'Password for the user',
-    example: 'password123',
-  })
+  @ApiProperty({ example: 'password123' })
+  @MinLength(6)
   @MaxLength(50)
-  @IsString({ message: 'Password must be a string' })
   password: string;
 
-  @ApiProperty({
-    description: 'First name of the user',
-    example: 'John',
-  })
+  @ApiProperty({ example: 'John' })
   @MaxLength(30)
-  @IsString({ message: 'First name must be a string' })
   firstName: string;
 
-  @ApiProperty({
-    description: 'Last name of the user',
-    example: 'Doe',
-  })
+  @ApiProperty({ example: 'Doe' })
   @MaxLength(30)
-  @IsString({ message: 'Last name must be a string' })
   lastName: string;
 
-  @ApiProperty({
-    description: 'Role of the user',
-    example: Role.READONLY,
-  })
-  @IsEnum({ type: Role })
+  @ApiProperty({ example: Role.READONLY, enum: Role })
+  @IsEnum(Role)
   role: Role;
 
   @ApiPropertyOptional({
-    description: 'URL to the user avatar image',
     example: 'https://example.com/avatar.png',
+    nullable: true,
   })
   @IsOptional()
-  @IsString({ message: 'Avatar URL must be a string' })
-  @IsUrl({}, { message: 'Avatar URL must be a valid URL' })
-  avatarUrl?: string;
+  @IsUrl()
+  avatarUrl?: string | null;
 }
