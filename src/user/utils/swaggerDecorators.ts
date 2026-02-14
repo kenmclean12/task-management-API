@@ -13,45 +13,51 @@ import {
 } from '../dto';
 
 export const UserSwagger = {
-  findOne: () =>
-    applyDecorators(
+  findOne: () => {
+    return applyDecorators(
       ApiOperation({ summary: 'Get a user by ID' }),
       ApiParam({ name: 'id', type: Number }),
       ApiOkResponse({ type: UserResponseDto }),
-    ),
+    );
+  },
 
-  findAll: () =>
-    applyDecorators(
+  findAll: () => {
+    return applyDecorators(
       ApiOperation({ summary: 'Get all users' }),
       ApiOkResponse({ type: [UserResponseDto] }),
-    ),
+    );
+  },
 
-  create: () =>
-    applyDecorators(
+  create: () => {
+    return applyDecorators(
       ApiOperation({ summary: 'Create a new user' }),
       ApiBody({ type: UserCreateDto }),
       ApiOkResponse({ type: UserResponseDto }),
-    ),
+    );
+  },
 
-  update: () =>
-    applyDecorators(
+  update: () => {
+    return applyDecorators(
       ApiOperation({ summary: 'Update user information by user ID' }),
       ApiParam({ name: 'id', type: Number }),
       ApiBody({ type: UserUpdateDto }),
       ApiOkResponse({ type: UserResponseDto }),
-    ),
+    );
+  },
 
-  changePassword: () =>
-    applyDecorators(
+  changePassword: () => {
+    return applyDecorators(
       ApiOperation({ summary: 'Change user password' }),
       ApiBody({ type: PasswordResetDto }),
       ApiOkResponse({ type: UserResponseDto }),
-    ),
+    );
+  },
 
-  remove: () =>
-    applyDecorators(
+  remove: () => {
+    return applyDecorators(
       ApiOperation({ summary: 'Delete a user by ID' }),
       ApiParam({ name: 'id', type: Number }),
       ApiOkResponse({ type: UserResponseDto }),
-    ),
+    );
+  },
 };
