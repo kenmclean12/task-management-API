@@ -39,8 +39,8 @@ model Address {
   country    String
   postalCode String
   
-  clientId   Int?     @unique
-  client     Client   @relation(fields: [clientId], references: [id])
+  clientId   Int     @unique
+  client     Client  @relation(fields: [clientId], references: [id])
 }
 
 model Client {
@@ -48,9 +48,9 @@ model Client {
   name         String
   createdAt    DateTime  @default(now())
   email        String?   @unique
-  phone?       String?
-  website?     String?   
-  description? String?
+  phone        String?
+  website      String?   
+  description  String?
 
-  address?     Address?
+  address      Address?
 }
