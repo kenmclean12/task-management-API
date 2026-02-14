@@ -23,11 +23,12 @@ import {
   ApiResponse,
   ApiParam,
   ApiBody,
-  ApiBearerAuth,
+  // ApiBearerAuth,
+  ApiOkResponse,
 } from '@nestjs/swagger';
 
 @ApiTags('User')
-@ApiBearerAuth('JWT')
+// @ApiBearerAuth('JWT')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -35,12 +36,7 @@ export class UserController {
   @Get(':id')
   @ApiOperation({ summary: 'Get a user by ID' })
   @ApiParam({ name: 'id', type: Number, description: 'ID of the user' })
-  @ApiResponse({
-    status: 200,
-    description: 'The found user',
-    type: UserResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiOkResponse({ type: UserResponseDto })
   async findOne(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<UserResponseDto> {
@@ -49,11 +45,7 @@ export class UserController {
 
   @Get()
   @ApiOperation({ summary: 'Get all users' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of all users',
-    type: [UserResponseDto],
-  })
+  @ApiResponse({ description: 'List of all users', type: [UserResponseDto] })
   async findAll(): Promise<UserResponseDto[]> {
     return await this.userService.findAll();
   }
@@ -61,11 +53,7 @@ export class UserController {
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
   @ApiBody({ type: UserCreateDto })
-  @ApiResponse({
-    status: 201,
-    description: 'User created',
-    type: UserResponseDto,
-  })
+  @ApiOkResponse({ type: UserResponseDto })
   async create(@Body() dto: UserCreateDto): Promise<UserResponseDto> {
     return await this.userService.create(dto);
   }
@@ -74,11 +62,7 @@ export class UserController {
   @ApiOperation({ summary: 'Update user information by user ID' })
   @ApiParam({ name: 'id', type: Number, description: 'ID of the user' })
   @ApiBody({ type: UserUpdateDto })
-  @ApiResponse({
-    status: 200,
-    description: 'User updated',
-    type: UserResponseDto,
-  })
+  @ApiOkResponse({ description: 'User updated', type: UserResponseDto })
   @ApiResponse({ status: 404, description: 'User not found' })
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -89,6 +73,10 @@ export class UserController {
 
   @Patch('change-password')
   @ApiOperation({ summary: 'Change user password' })
+  @ApiOkResponse({
+    description: 'Password reset successful',
+    type: UserResponseDto,
+  })
   @ApiBody({ type: PasswordResetDto })
   async changePassword(
     @Req() req,
@@ -101,12 +89,7 @@ export class UserController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a user by ID' })
   @ApiParam({ name: 'id', type: Number, description: 'ID of the user' })
-  @ApiResponse({
-    status: 200,
-    description: 'User deleted',
-    type: UserResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiOkResponse({ description: 'User deleted', type: UserResponseDto })
   async remove(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<UserResponseDto> {

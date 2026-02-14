@@ -9,5 +9,6 @@ export function userToResponse(user: User): UserResponseDto {
     lastName: user.lastName,
     avatarUrl: user.avatarUrl ?? undefined,
     createdAt: user.createdAt,
+    role: user.role,
   };
 }

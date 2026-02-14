@@ -1,11 +1,20 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsString, IsOptional, IsUrl } from 'class-validator';
+import { Role } from '@prisma/client';
+import {
+  IsEmail,
+  IsString,
+  IsOptional,
+  IsUrl,
+  MaxLength,
+  IsEnum,
+} from 'class-validator';
 
 export class UserCreateDto {
   @ApiProperty({
     description: 'Email address of the user',
     example: 'user@example.com',
   })
+  @MaxLength(50)
   @IsEmail({}, { message: 'Email must be valid' })
   email: string;
 
@@ -13,6 +22,7 @@ export class UserCreateDto {
     description: 'Password for the user',
     example: 'password123',
   })
+  @MaxLength(50)
   @IsString({ message: 'Password must be a string' })
   password: string;
 
@@ -20,6 +30,7 @@ export class UserCreateDto {
     description: 'First name of the user',
     example: 'John',
   })
+  @MaxLength(30)
   @IsString({ message: 'First name must be a string' })
   firstName: string;
 
@@ -27,8 +38,16 @@ export class UserCreateDto {
     description: 'Last name of the user',
     example: 'Doe',
   })
+  @MaxLength(30)
   @IsString({ message: 'Last name must be a string' })
   lastName: string;
+
+  @ApiProperty({
+    description: 'Role of the user',
+    example: Role.READONLY,
+  })
+  @IsEnum({ type: Role })
+  role: Role;
 
   @ApiPropertyOptional({
     description: 'URL to the user avatar image',
