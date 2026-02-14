@@ -45,7 +45,7 @@ model Address {
 
 model Client {
   id           Int       @id @default(autoincrement())
-  name         String
+  name         String    @unique
   createdAt    DateTime  @default(now())
   email        String?   @unique
   phone        String?

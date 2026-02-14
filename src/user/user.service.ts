@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
@@ -12,16 +13,35 @@ import {
   PasswordResetDto,
 } from './dto';
 import { userResponseSelect, userToResponse } from './utils/userToResponse';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async findOne(id: number): Promise<UserResponseDto> {
-    return await this.prisma.user.findUniqueOrThrow({
+    const user = await this.prisma.user.findUnique({
       where: { id },
       select: userResponseSelect,
     });
+
+    if (!user) {
+      throw new NotFoundException(`No user found with provided id: ${id}`);
+    }
+
+    return user;
+  }
+
+  async findOneSensitiveFieldsIncluded(id: number): Promise<User> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`No user found with provided id: ${id}`);
+    }
+
+    return user;
   }
 
   async findAll(): Promise<UserResponseDto[]> {
@@ -29,11 +49,11 @@ export class UserService {
   }
 
   async create(dto: UserCreateDto): Promise<UserResponseDto> {
-    const existingUser = await this.prisma.user.findUnique({
+    const duplicateEmailUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
 
-    if (existingUser) {
+    if (duplicateEmailUser) {
       throw new ConflictException(
         `User with email ${dto.email} already exists`,
       );
@@ -53,7 +73,7 @@ export class UserService {
   }
 
   async update(id: number, dto: UserUpdateDto): Promise<UserResponseDto> {
-    await this.prisma.user.findUniqueOrThrow({ where: { id } });
+    await this.findOne(id);
     const updated = await this.prisma.user.update({
       where: { id },
       data: dto,
@@ -66,10 +86,7 @@ export class UserService {
     userId: number,
     dto: PasswordResetDto,
   ): Promise<UserResponseDto> {
-    const user = await this.prisma.user.findUniqueOrThrow({
-      where: { id: userId },
-    });
-
+    const user = await this.findOneSensitiveFieldsIncluded(userId);
     const passwordMatches = await bcrypt.compare(
       dto.oldPassword,
       user.password,
@@ -89,10 +106,7 @@ export class UserService {
   }
 
   async remove(id: number): Promise<UserResponseDto> {
-    const existingUser = await this.prisma.user.findUniqueOrThrow({
-      where: { id },
-    });
-
+    const existingUser = await this.findOneSensitiveFieldsIncluded(id);
     await this.prisma.user.delete({ where: { id } });
     return userToResponse(existingUser);
   }
