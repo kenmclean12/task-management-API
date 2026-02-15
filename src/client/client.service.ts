@@ -5,11 +5,20 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ClientCreateDto, ClientResponseDto, ClientUpdateDto } from './dto';
+import {
+  ClientCreateDto,
+  ClientCreateWithAddressDto,
+  ClientResponseDto,
+  ClientUpdateDto,
+} from './dto';
+import { AddressService } from 'src/address/address.service';
 
 @Injectable()
 export class ClientService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private addressService: AddressService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   async findOne(id: number): Promise<ClientResponseDto> {
     const client = await this.prisma.client.findUnique({
@@ -46,6 +55,31 @@ export class ClientService {
       );
     }
 
+    return created;
+  }
+
+  async createWithAddress(
+    dto: ClientCreateWithAddressDto,
+  ): Promise<ClientResponseDto> {
+    const { address, ...clientDto } = dto;
+    const duplicateClientName = await this.prisma.client.findUnique({
+      where: { name: clientDto.name },
+    });
+
+    if (duplicateClientName) {
+      throw new ConflictException(
+        `Error, client with name: ${clientDto.name} already exists`,
+      );
+    }
+
+    const created = await this.prisma.client.create({ data: clientDto });
+    if (!created) {
+      throw new BadRequestException(
+        `Error, could not create client with provided data: ${JSON.stringify(dto)}`,
+      );
+    }
+
+    await this.addressService.create({ ...address, clientId: created.id });
     return created;
   }
 

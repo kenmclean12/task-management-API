@@ -29,6 +29,8 @@ model User {
   avatarUrl String?
   createdAt DateTime  @default(now())
   role      Role      @default(READONLY)
+
+  projects  Project[] @relation("ProjectAssignments")
 }
 
 model Address {
@@ -53,4 +55,36 @@ model Client {
   description  String?
 
   address      Address?
+  projects     Project[]
+}
+
+enum Priority {
+  LOW     @map("1")
+  MEDIUM  @map("2")
+  HIGH    @map("3")
+  URGENT  @map("4")
+}
+
+enum ProjectStatus {
+  NOT_STARTED @map("1")
+  IN_PROGRESS @map("2")
+  ON_HOLD     @map("3")
+  COMPLETED   @map("4")
+  CANCELLED   @map("5")
+}
+
+model Project {
+  id            Int             @id @default(autoincrement())
+  name          String
+  description   String?
+  createdAt     DateTime        @default(now())
+  startDate     DateTime?
+  dueDate       DateTime?
+  finishDate    DateTime?
+  priority      Priority        @default(LOW)
+  status        ProjectStatus   @default(NOT_STARTED)
+
+  clientId      Int
+  client        Client          @relation(fields: [clientId], references: [id])
+  assignedTo    User[]          @relation("ProjectAssignments")
 }

@@ -7,9 +7,10 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { ClientModule } from './client/client.module';
 import { AddressModule } from './address/address.module';
 import { AuthModule } from './auth/auth.module';
+import { ProjectModule } from './project/project.module';
 
 @Module({
-  imports: [PrismaModule, UserModule, ClientModule, AddressModule, AuthModule],
+  imports: [PrismaModule, UserModule, ClientModule, AddressModule, AuthModule, ProjectModule],
   controllers: [AppController],
   providers: [AppService, JwtAuthGuard],
 })
