@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { ProjectResponseDto } from '../dto';
-import { userToResponse } from 'src/user/utils/userToResponse';
+import { userToResponse } from 'src/user/utils';
 
 type ProjectWithUsers = Prisma.ProjectGetPayload<{
   include: { assignedTo: true };

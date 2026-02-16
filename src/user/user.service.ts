@@ -12,8 +12,8 @@ import {
   UserUpdateDto,
   PasswordResetDto,
 } from './dto';
-import { userResponseSelect, userToResponse } from './utils/userToResponse';
 import { User } from '@prisma/client';
+import { userResponseSelect, userToResponse } from './utils';
 
 @Injectable()
 export class UserService {

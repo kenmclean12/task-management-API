@@ -11,7 +11,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { ProjectService } from './project.service';
 import { ProjectCreateDto, ProjectResponseDto, ProjectUpdateDto } from './dto';
-import { ProjectSwagger } from './utils/swaggerDecorators';
+import { ProjectSwagger } from './utils';
 
 @ApiTags('Project')
 @Controller('project')

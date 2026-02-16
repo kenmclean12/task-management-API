@@ -17,7 +17,7 @@ import {
   UserUpdateDto,
 } from './dto';
 import { ApiTags } from '@nestjs/swagger';
-import { UserSwagger } from './utils/swaggerDecorators';
+import { UserSwagger } from './utils';
 
 @ApiTags('User')
 @Controller('user')

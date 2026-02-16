@@ -5,11 +5,11 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProjectCreateDto, ProjectResponseDto, ProjectUpdateDto } from './dto';
-import { projectToResponse } from './utils/projectToResponse';
+import { projectToResponse } from './utils';
 
 @Injectable()
 export class ProjectService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async findOne(id: number): Promise<ProjectResponseDto> {
     const project = await this.prisma.project.findUnique({

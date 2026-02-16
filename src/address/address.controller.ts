@@ -11,7 +11,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { AddressService } from './address.service';
 import { AddressCreateDto, AddressResponseDto, AddressUpdateDto } from './dto';
-import { AddressSwagger } from './utils/swaggerDecorators';
+import { AddressSwagger } from './utils';
 
 @Controller('address')
 @ApiTags('Address')

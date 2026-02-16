@@ -21,16 +21,17 @@ enum Role {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  password  String
-  firstName String
-  lastName  String
-  avatarUrl String?
-  createdAt DateTime  @default(now())
-  role      Role      @default(READONLY)
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  password    String
+  firstName   String
+  lastName    String
+  avatarUrl   String?
+  createdAt   DateTime  @default(now())
+  role        Role      @default(READONLY)
 
-  projects  Project[] @relation("ProjectAssignments")
+  projects    Project[] @relation("ProjectAssignments")
+  jobs        Job[]     @relation("JobAssignments")
 }
 
 model Address {
@@ -65,7 +66,7 @@ enum Priority {
   URGENT  @map("4")
 }
 
-enum ProjectStatus {
+enum Status {
   NOT_STARTED @map("1")
   IN_PROGRESS @map("2")
   ON_HOLD     @map("3")
@@ -82,9 +83,27 @@ model Project {
   dueDate       DateTime?
   finishDate    DateTime?
   priority      Priority        @default(LOW)
-  status        ProjectStatus   @default(NOT_STARTED)
+  status        Status          @default(NOT_STARTED)
 
   clientId      Int
   client        Client          @relation(fields: [clientId], references: [id])
+  jobs          Job[]
   assignedTo    User[]          @relation("ProjectAssignments")
+}
+
+model Job {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  startDate   DateTime?
+  dueDate     DateTime?
+  finishDate  DateTime?
+  status      Status    @default(NOT_STARTED)
+  priority    Priority   @default(LOW)
+
+  projectId   Int
+  project     Project    @relation(fields: [projectId], references: [id])
+  assignedTo  User[]     @relation("JobAssignments")
 }

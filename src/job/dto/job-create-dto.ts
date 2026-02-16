@@ -4,16 +4,16 @@ import {
   IsArray,
   IsDateString,
   IsNotEmpty,
-  IsOptional,
   IsNumber,
+  IsOptional,
   IsString,
 } from 'class-validator';
 
-export class ProjectCreateDto {
+export class JobCreateDto {
   @ApiProperty({ example: 1 })
   @IsNotEmpty()
   @IsNumber()
-  clientId: number;
+  projectId: number;
 
   @ApiProperty({ example: [1, 2] })
   @IsOptional()
@@ -21,12 +21,12 @@ export class ProjectCreateDto {
   @IsNumber({}, { each: true })
   assignedToUserIds?: number[];
 
-  @ApiProperty({ example: 'name1' })
+  @ApiProperty({ example: 'Setup database' })
   @IsNotEmpty()
   @IsString()
-  name: string;
+  title: string;
 
-  @ApiProperty({ example: 'project description' })
+  @ApiProperty({ example: 'Detailed description' })
   @IsOptional()
   @IsString()
   description?: string;

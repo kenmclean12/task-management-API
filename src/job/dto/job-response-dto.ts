@@ -2,18 +2,21 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Priority, Status } from '@prisma/client';
 import { UserResponseDto } from 'src/user/dto';
 
-export class ProjectResponseDto {
+export class JobResponseDto {
   @ApiProperty()
   id: number;
 
   @ApiProperty()
-  name: string;
+  title: string;
 
   @ApiPropertyOptional({ nullable: true })
   description: string | null;
 
   @ApiProperty()
   createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
 
   @ApiPropertyOptional({ nullable: true })
   startDate: Date | null;
@@ -31,7 +34,7 @@ export class ProjectResponseDto {
   status: Status;
 
   @ApiProperty()
-  clientId: number;
+  projectId: number;
 
   @ApiPropertyOptional({ type: () => [UserResponseDto] })
   assignedTo?: UserResponseDto[];
