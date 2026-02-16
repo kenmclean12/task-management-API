@@ -11,6 +11,7 @@ import { JobModule } from './job/job.module';
 import { JwtAuthGuard } from './auth/guards';
 import { ClientHistoryModule } from './client-history/client-history.module';
 import { ProjectHistoryModule } from './project-history/project-history.module';
+import { JobHistoryModule } from './job-history/job-history.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ProjectHistoryModule } from './project-history/project-history.module';
     JobModule,
     ClientHistoryModule,
     ProjectHistoryModule,
+    JobHistoryModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtAuthGuard],
