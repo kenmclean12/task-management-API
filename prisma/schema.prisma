@@ -21,17 +21,18 @@ enum Role {
 }
 
 model User {
-  id          Int       @id @default(autoincrement())
-  email       String    @unique
-  password    String
-  firstName   String
-  lastName    String
-  avatarUrl   String?
-  createdAt   DateTime  @default(now())
-  role        Role      @default(READONLY)
+  id              Int               @id @default(autoincrement())
+  email           String            @unique
+  password        String
+  firstName       String
+  lastName        String
+  avatarUrl       String?
+  createdAt       DateTime          @default(now())
+  role            Role              @default(READONLY)
 
-  projects    Project[] @relation("ProjectAssignments")
-  jobs        Job[]     @relation("JobAssignments")
+  projects        Project[]         @relation("ProjectAssignments")
+  jobs            Job[]             @relation("JobAssignments")
+  clientHistory   ClientHistory[]   
 }
 
 model Address {
@@ -57,6 +58,44 @@ model Client {
 
   address      Address?
   projects     Project[]
+
+  history      ClientHistory[]
+}
+
+enum ClientHistoryEventType {
+  CREATED
+  UPDATED
+  DELETED
+
+  EMAIL_CHANGED
+  PHONE_CHANGED
+  WEBSITE_CHANGED
+  DESCRIPTION_CHANGED
+  NAME_CHANGED
+  ADDRESS_CHANGED
+}
+
+enum ClientField {
+  name
+  email
+  phone
+  website
+  description
+  address
+}
+
+model ClientHistory {
+  id        Int      @id @default(autoincrement())
+  clientId  Int
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  actorId   Int
+  actor     User    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  eventType ClientHistoryEventType
+  field     ClientField?
+  oldValue  Json?
+  newValue  Json?
+
+  createdAt DateTime @default(now())
 }
 
 enum Priority {
