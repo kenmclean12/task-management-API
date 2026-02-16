@@ -13,6 +13,7 @@ import { ClientHistoryModule } from './client-history/client-history.module';
 import { ProjectHistoryModule } from './project-history/project-history.module';
 import { JobHistoryModule } from './job-history/job-history.module';
 import { AddressHistoryModule } from './address-history/address-history.module';
+import { UserHistoryModule } from './user-history/user-history.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { AddressHistoryModule } from './address-history/address-history.module';
     ProjectHistoryModule,
     JobHistoryModule,
     AddressHistoryModule,
+    UserHistoryModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtAuthGuard],

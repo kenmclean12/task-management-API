@@ -21,21 +21,61 @@ enum Role {
 }
 
 model User {
-  id              Int               @id @default(autoincrement())
-  email           String            @unique
-  password        String
-  firstName       String
-  lastName        String
-  avatarUrl       String?
-  createdAt       DateTime          @default(now())
-  role            Role              @default(READONLY)
+  id                Int               @id @default(autoincrement())
+  email             String            @unique
+  password          String
+  firstName         String
+  lastName          String
+  avatarUrl         String?
+  createdAt         DateTime          @default(now())
+  role              Role              @default(READONLY)
 
-  projects        Project[]         @relation("ProjectAssignments")
-  jobs            Job[]             @relation("JobAssignments")
-  addressHistory  AddressHistory[]
-  clientHistory   ClientHistory[]   
-  projectHistory  ProjectHistory[]
-  jobHistory      JobHistory[]
+  projects          Project[]         @relation("ProjectAssignments")
+  jobs              Job[]             @relation("JobAssignments")
+  addressHistory    AddressHistory[]
+  clientHistory     ClientHistory[]   
+  projectHistory    ProjectHistory[]
+  jobHistory        JobHistory[]
+  userHistory       UserHistory[]     @relation("UserToHistory")
+  actedUserHistory  UserHistory[]     @relation("ActorToHistory")
+}
+
+enum UserHistoryEventType {
+  CREATED
+  UPDATED
+  DELETED
+
+  EMAIL_CHANGED
+  PASSWORD_CHANGED
+  FIRSTNAME_CHANGED
+  LASTNAME_CHANGED
+  ROLE_CHANGED
+  AVATARURL_CHANGED
+}
+
+enum UserField {
+  email
+  password
+  firstName
+  lastName
+  role
+  avatarUrl
+}
+
+model UserHistory {
+  id        Int                     @id @default(autoincrement())
+  userId    Int
+  user      User                    @relation("UserToHistory", fields: [userId], references: [id], onDelete: Cascade)
+  
+  actorId   Int
+  actor     User                    @relation("ActorToHistory", fields: [actorId], references: [id], onDelete: SetNull)
+
+  eventType UserHistoryEventType
+  field     UserField?
+  oldValue  Json?
+  newValue  Json?
+
+  createdAt DateTime  @default(now())
 }
 
 model Address {
