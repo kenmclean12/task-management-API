@@ -33,6 +33,7 @@ model User {
   projects        Project[]         @relation("ProjectAssignments")
   jobs            Job[]             @relation("JobAssignments")
   clientHistory   ClientHistory[]   
+  projectHistory  ProjectHistory[]
 }
 
 model Address {
@@ -89,7 +90,7 @@ model ClientHistory {
   clientId  Int
   client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   actorId   Int
-  actor     User    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  actor     User     @relation(fields: [actorId], references: [id], onDelete: SetNull)
   eventType ClientHistoryEventType
   field     ClientField?
   oldValue  Json?
@@ -114,20 +115,63 @@ enum Status {
 }
 
 model Project {
-  id            Int             @id @default(autoincrement())
+  id            Int               @id @default(autoincrement())
   name          String
   description   String?
-  createdAt     DateTime        @default(now())
+  createdAt     DateTime          @default(now())
   startDate     DateTime?
   dueDate       DateTime?
   finishDate    DateTime?
-  priority      Priority        @default(LOW)
-  status        Status          @default(NOT_STARTED)
+  priority      Priority          @default(LOW)
+  status        Status            @default(NOT_STARTED)
 
   clientId      Int
-  client        Client          @relation(fields: [clientId], references: [id])
+  client        Client            @relation(fields: [clientId], references: [id])
   jobs          Job[]
-  assignedTo    User[]          @relation("ProjectAssignments")
+  assignedTo    User[]            @relation("ProjectAssignments")
+  history       ProjectHistory[]
+}
+
+enum ProjectHistoryEventType {
+  CREATED
+  UPDATED
+  DELETED
+
+  NAME_CHANGED
+  DESCRIPTION_CHANGED
+  STATUS_CHANGED
+  PRIORITY_CHANGED
+  START_DATE_CHANGED
+  DUE_DATE_CHANGED
+  FINISH_DATE_CHANGED
+  CLIENT_CHANGED
+}
+
+enum ProjectField {
+  name
+  description
+  status
+  priority
+  startDate
+  dueDate
+  finishDate
+  client
+}
+
+model ProjectHistory {
+  id        Int       @id @default(autoincrement())
+  projectId Int
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  actorId   Int
+  actor     User      @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  
+  eventType ProjectHistoryEventType
+  field     ProjectField?
+  oldValue  Json?
+  newValue  Json?
+
+  createdAt DateTime  @default(now())
 }
 
 model Job {

@@ -10,6 +10,7 @@ import { ProjectModule } from './project/project.module';
 import { JobModule } from './job/job.module';
 import { JwtAuthGuard } from './auth/guards';
 import { ClientHistoryModule } from './client-history/client-history.module';
+import { ProjectHistoryModule } from './project-history/project-history.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ClientHistoryModule } from './client-history/client-history.module';
     ProjectModule,
     JobModule,
     ClientHistoryModule,
+    ProjectHistoryModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtAuthGuard],
