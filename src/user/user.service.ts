@@ -12,8 +12,12 @@ import {
   UserResponseDto,
   UserUpdateDto,
 } from './dto';
-import { Prisma, User, UserField, UserHistoryEventType } from '@prisma/client';
-import { userResponseSelect, userToResponse } from './utils';
+import { User, UserHistoryEventType } from '@prisma/client';
+import {
+  createUpdateHistory,
+  userResponseSelect,
+  userToResponse,
+} from './utils';
 import { UserHistoryService } from 'src/user-history/user-history.service';
 
 @Injectable()
@@ -88,6 +92,17 @@ export class UserService {
     dto: UserUpdateDto,
   ): Promise<UserResponseDto> {
     const original = await this.findOne(id);
+    if (dto.email) {
+      const duplicateEmailUser = await this.prisma.user.findFirst({
+        where: { email: dto.email, id: { not: id } },
+      });
+
+      if (duplicateEmailUser) {
+        throw new ConflictException(
+          `User with email ${duplicateEmailUser.email} already exists`,
+        );
+      }
+    }
 
     const updated = await this.prisma.user.update({
       where: { id },
@@ -100,40 +115,15 @@ export class UserService {
       );
     }
 
-    await this.createUpdateHistory(actorId, id, original, dto);
-    return userToResponse(updated);
-  }
-
-  private async createUpdateHistory(
-    actorId: number,
-    userId: number,
-    user: UserResponseDto,
-    dto: UserUpdateDto,
-  ) {
-    const eventTypeMap: Record<keyof UserUpdateDto, UserHistoryEventType> = {
-      email: UserHistoryEventType.EMAIL_CHANGED,
-      firstName: UserHistoryEventType.FIRSTNAME_CHANGED,
-      lastName: UserHistoryEventType.LASTNAME_CHANGED,
-      avatarUrl: UserHistoryEventType.AVATARURL_CHANGED,
-      role: UserHistoryEventType.ROLE_CHANGED,
-    };
-
-    const changedFields = Object.keys(dto).filter(
-      (k) => dto[k as keyof UserUpdateDto] !== user[k as keyof UserUpdateDto],
+    await createUpdateHistory(
+      actorId,
+      id,
+      original,
+      dto,
+      this.userHistoryService,
     );
 
-    for (const field of changedFields) {
-      const key = field as keyof UserUpdateDto;
-
-      await this.userHistoryService.create({
-        userId,
-        actorId,
-        eventType: eventTypeMap[key],
-        field: key as UserField,
-        oldValue: (user[key] as Prisma.InputJsonValue) ?? null,
-        newValue: (dto[key] as Prisma.InputJsonValue) ?? null,
-      });
-    }
+    return userToResponse(updated);
   }
 
   async changePassword(

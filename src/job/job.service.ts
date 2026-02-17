@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JobCreateDto, JobResponseDto, JobUpdateDto } from './dto';
 import { JobHistoryService } from 'src/job-history/job-history.service';
-import { JobHistoryEventType, JobField, Prisma } from '@prisma/client';
-import { jobToResponse } from './utils';
+import { JobHistoryEventType } from '@prisma/client';
+import { createUpdateHistory, jobToResponse } from './utils';
 
 @Injectable()
 export class JobService {
@@ -63,58 +63,6 @@ export class JobService {
     return jobToResponse(job);
   }
 
-  private async createUpdateHistory(
-    actorId: number,
-    jobId: number,
-    job: JobResponseDto,
-    dto: JobUpdateDto,
-  ) {
-    const eventTypeMap: Record<keyof JobUpdateDto, JobHistoryEventType> = {
-      title: JobHistoryEventType.TITLE_CHANGED,
-      description: JobHistoryEventType.DESCRIPTION_CHANGED,
-      status: JobHistoryEventType.STATUS_CHANGED,
-      priority: JobHistoryEventType.PRIORITY_CHANGED,
-      startDate: JobHistoryEventType.START_DATE_CHANGED,
-      dueDate: JobHistoryEventType.DUE_DATE_CHANGED,
-      finishDate: JobHistoryEventType.FINISH_DATE_CHANGED,
-      assignedToUserIds: JobHistoryEventType.ASSIGNED_USERS_CHANGED,
-    };
-
-    const changedFields = Object.keys(dto).filter((k) => {
-      const key = k as keyof JobUpdateDto;
-      if (key === 'assignedToUserIds') {
-        const oldIds = job.assignedTo?.map((u) => u.id).sort() ?? [];
-        const newIds = dto.assignedToUserIds?.sort() ?? [];
-        return JSON.stringify(oldIds) !== JSON.stringify(newIds);
-      }
-
-      return dto[k as keyof JobUpdateDto] !== job[k as keyof JobUpdateDto];
-    });
-
-    for (const field of changedFields) {
-      const key = field as keyof JobUpdateDto;
-      let oldValue: Prisma.InputJsonValue | null;
-      let newValue: Prisma.InputJsonValue | null;
-
-      if (key === 'assignedToUserIds') {
-        oldValue = job.assignedTo?.map((u) => u.id).sort() ?? [];
-        newValue = dto.assignedToUserIds ?? [];
-      } else {
-        oldValue = (job[key] as Prisma.InputJsonValue) ?? null;
-        newValue = (dto[key] as Prisma.InputJsonValue) ?? null;
-      }
-
-      await this.jobHistoryService.create({
-        jobId,
-        actorId,
-        eventType: eventTypeMap[key],
-        field: key as JobField,
-        oldValue,
-        newValue,
-      });
-    }
-  }
-
   async update(
     id: number,
     userId: number,
@@ -127,7 +75,14 @@ export class JobService {
       include: { assignedTo: true },
     });
 
-    await this.createUpdateHistory(userId, id, original, dto);
+    await createUpdateHistory(
+      userId,
+      id,
+      original,
+      dto,
+      this.jobHistoryService,
+    );
+
     return jobToResponse(updated);
   }
 

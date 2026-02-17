@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ProjectService } from './project.service';
@@ -50,24 +51,35 @@ export class ProjectController {
 
   @Post()
   @ProjectSwagger.create()
-  async create(@Body() dto: ProjectCreateDto): Promise<ProjectResponseDto> {
-    return await this.projectService.create(dto);
+  async create(
+    @Req() req,
+    @Body() dto: ProjectCreateDto,
+  ): Promise<ProjectResponseDto> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const userId = req.user.id as number;
+    return await this.projectService.create(userId, dto);
   }
 
   @Patch(':id')
   @ProjectSwagger.update()
   async update(
+    @Req() req,
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ProjectUpdateDto,
   ): Promise<ProjectResponseDto> {
-    return await this.projectService.update(id, dto);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const userId = req.user.id as number;
+    return await this.projectService.update(id, userId, dto);
   }
 
   @Delete(':id')
   @ProjectSwagger.remove()
   async remove(
+    @Req() req,
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ProjectResponseDto> {
-    return await this.projectService.remove(id);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const userId = req.user.id as number;
+    return await this.projectService.remove(id, userId);
   }
 }

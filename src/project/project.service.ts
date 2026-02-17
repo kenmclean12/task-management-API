@@ -5,11 +5,16 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProjectCreateDto, ProjectResponseDto, ProjectUpdateDto } from './dto';
-import { projectToResponse } from './utils';
+import { createUpdateHistory, projectToResponse } from './utils';
+import { ProjectHistoryService } from 'src/project-history/project-history.service';
+import { ProjectHistoryEventType } from '@prisma/client';
 
 @Injectable()
 export class ProjectService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly projectHistoryService: ProjectHistoryService,
+  ) {}
 
   async findOne(id: number): Promise<ProjectResponseDto> {
     const project = await this.prisma.project.findUnique({
@@ -32,7 +37,7 @@ export class ProjectService {
       include: { assignedTo: true },
     });
 
-    return projects.map((p) => projectToResponse(p));
+    return projects.map(projectToResponse);
   }
 
   async findByAssignedUserId(id: number): Promise<ProjectResponseDto[]> {
@@ -41,7 +46,7 @@ export class ProjectService {
       include: { assignedTo: true },
     });
 
-    return projects.map((p) => projectToResponse(p));
+    return projects.map(projectToResponse);
   }
 
   async findAll(): Promise<ProjectResponseDto[]> {
@@ -49,10 +54,13 @@ export class ProjectService {
       include: { assignedTo: true },
     });
 
-    return projects.map((p) => projectToResponse(p));
+    return projects.map(projectToResponse);
   }
 
-  async create(dto: ProjectCreateDto): Promise<ProjectResponseDto> {
+  async create(
+    userId: number,
+    dto: ProjectCreateDto,
+  ): Promise<ProjectResponseDto> {
     const project = await this.prisma.project.create({
       data: dto,
       include: { assignedTo: true },
@@ -64,15 +72,21 @@ export class ProjectService {
       );
     }
 
+    await this.projectHistoryService.create({
+      projectId: project.id,
+      actorId: userId,
+      eventType: ProjectHistoryEventType.CREATED,
+    });
+
     return projectToResponse(project);
   }
 
-  async update(id: number, dto: ProjectUpdateDto) {
-    const existing = await this.prisma.project.findUnique({ where: { id } });
-    if (!existing) {
-      throw new NotFoundException(`No project found with provided id: ${id}`);
-    }
-
+  async update(
+    id: number,
+    userId: number,
+    dto: ProjectUpdateDto,
+  ): Promise<ProjectResponseDto> {
+    const original = await this.findOne(id);
     const updated = await this.prisma.project.update({
       where: { id },
       data: dto,
@@ -85,22 +99,27 @@ export class ProjectService {
       );
     }
 
+    await createUpdateHistory(
+      userId,
+      id,
+      original,
+      dto,
+      this.projectHistoryService,
+    );
+
     return projectToResponse(updated);
   }
 
-  async remove(id: number): Promise<ProjectResponseDto> {
-    const existing = await this.prisma.project.findUnique({
-      where: { id },
-      include: { assignedTo: true },
+  async remove(id: number, userId: number): Promise<ProjectResponseDto> {
+    const project = await this.findOne(id);
+    await this.prisma.project.delete({ where: { id } });
+
+    await this.projectHistoryService.create({
+      projectId: id,
+      actorId: userId,
+      eventType: ProjectHistoryEventType.DELETED,
     });
 
-    if (!existing) {
-      throw new NotFoundException(
-        `No project found with the provided id: ${id}`,
-      );
-    }
-
-    await this.prisma.project.delete({ where: { id } });
-    return projectToResponse(existing);
+    return project;
   }
 }

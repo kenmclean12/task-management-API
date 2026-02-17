@@ -6,7 +6,8 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddressCreateDto, AddressResponseDto, AddressUpdateDto } from './dto';
 import { AddressHistoryService } from 'src/address-history/address-history.service';
-import { AddressHistoryEventType, AddressField, Prisma } from '@prisma/client';
+import { AddressHistoryEventType } from '@prisma/client';
+import { createUpdateHistory } from './utils';
 
 @Injectable()
 export class AddressService {
@@ -81,49 +82,19 @@ export class AddressService {
 
     if (!updated) {
       throw new BadRequestException(
-        `Could not update client with provided data: ${JSON.stringify(dto)}`,
+        `Could not update address with provided data: ${JSON.stringify(dto)}`,
       );
     }
 
-    await this.createUpdateHistory(userId, id, original, dto);
-    return updated;
-  }
-
-  private async createUpdateHistory(
-    userId: number,
-    addressId: number,
-    address: AddressResponseDto,
-    dto: AddressUpdateDto,
-  ) {
-    const eventTypeMap: Record<
-      keyof AddressUpdateDto,
-      AddressHistoryEventType
-    > = {
-      street: AddressHistoryEventType.STREET_CHANGED,
-      city: AddressHistoryEventType.CITY_CHANGED,
-      state: AddressHistoryEventType.STATE_CHANGED,
-      country: AddressHistoryEventType.COUNTRY_CHANGED,
-      postalCode: AddressHistoryEventType.POSTALCODE_CHANGED,
-      clientId: AddressHistoryEventType.CLIENT_CHANGED,
-    };
-
-    const changedFields = Object.keys(dto).filter(
-      (k) =>
-        dto[k as keyof AddressUpdateDto] !==
-        address[k as keyof AddressUpdateDto],
+    await createUpdateHistory(
+      userId,
+      id,
+      original,
+      dto,
+      this.addressHistoryService,
     );
 
-    for (const field of changedFields) {
-      const key = field as keyof AddressUpdateDto;
-      await this.addressHistoryService.create({
-        addressId,
-        actorId: userId,
-        eventType: eventTypeMap[key],
-        field: key as AddressField,
-        oldValue: (address[key] as Prisma.InputJsonValue) ?? null,
-        newValue: (dto[key] as Prisma.InputJsonValue) ?? null,
-      });
-    }
+    return updated;
   }
 
   async remove(id: number, userId: number): Promise<AddressResponseDto> {

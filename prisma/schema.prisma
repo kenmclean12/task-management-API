@@ -213,6 +213,7 @@ model Project {
 enum ProjectHistoryEventType {
   CREATED
   DELETED
+  ASSIGNED_USERS_CHANGED
 
   NAME_CHANGED
   DESCRIPTION_CHANGED
@@ -221,7 +222,6 @@ enum ProjectHistoryEventType {
   START_DATE_CHANGED
   DUE_DATE_CHANGED
   FINISH_DATE_CHANGED
-  CLIENT_CHANGED
 }
 
 enum ProjectField {

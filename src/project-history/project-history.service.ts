@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProjectHistoryCreateDto, ProjectHistoryResponseDto } from './dto';
 import { UserService } from 'src/user/user.service';
@@ -9,6 +14,7 @@ export class ProjectHistoryService {
   constructor(
     private readonly prisma: PrismaService,
     private userService: UserService,
+    @Inject(forwardRef(() => ProjectService))
     private projectService: ProjectService,
   ) {}
 
