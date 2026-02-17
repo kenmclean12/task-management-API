@@ -92,7 +92,11 @@ export class ClientService {
       );
     }
 
-    await this.addressService.create({ ...address, clientId: created.id });
+    await this.addressService.create(userId, {
+      ...address,
+      clientId: created.id,
+    });
+
     await this.clientHistoryService.create({
       clientId: created.id,
       actorId: userId,

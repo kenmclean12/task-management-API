@@ -40,35 +40,47 @@ export class UserController {
 
   @Post()
   @UserSwagger.create()
-  async create(@Body() dto: UserCreateDto): Promise<UserResponseDto> {
-    return await this.userService.create(dto);
+  async create(
+    @Req() req,
+    @Body() dto: UserCreateDto,
+  ): Promise<UserResponseDto> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const userId = req.user.id as number;
+    return await this.userService.create(userId, dto);
   }
 
   @Patch(':id')
   @UserSwagger.update()
   async update(
+    @Req() req,
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UserUpdateDto,
   ): Promise<UserResponseDto> {
-    return await this.userService.update(id, dto);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const userId = req.user.id as number;
+    return await this.userService.update(id, userId, dto);
   }
 
-  @Patch('change-password')
+  @Patch('change-password/:id')
   @UserSwagger.changePassword()
   async changePassword(
     @Req() req,
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: PasswordResetDto,
   ): Promise<UserResponseDto> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const userId = req.user.id as number;
-    return await this.userService.changePassword(userId, dto);
+    return await this.userService.changePassword(id, userId, dto);
   }
 
   @Delete(':id')
   @UserSwagger.remove()
   async remove(
+    @Req() req,
     @Param('id', ParseIntPipe) id: number,
   ): Promise<UserResponseDto> {
-    return await this.userService.remove(id);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const userId = req.user.id as number;
+    return await this.userService.remove(id, userId);
   }
 }

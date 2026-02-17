@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JobCreateDto, JobResponseDto, JobUpdateDto } from './dto';
 import { JobHistoryService } from 'src/job-history/job-history.service';
@@ -67,22 +63,6 @@ export class JobService {
     return jobToResponse(job);
   }
 
-  async update(
-    id: number,
-    userId: number,
-    dto: JobUpdateDto,
-  ): Promise<JobResponseDto> {
-    const original = await this.findOne(id);
-    const updated = await this.prisma.job.update({
-      where: { id },
-      data: dto,
-      include: { assignedTo: true },
-    });
-
-    await this.createUpdateHistory(userId, id, original, dto);
-    return jobToResponse(updated);
-  }
-
   private async createUpdateHistory(
     actorId: number,
     jobId: number,
@@ -135,6 +115,22 @@ export class JobService {
     }
   }
 
+  async update(
+    id: number,
+    userId: number,
+    dto: JobUpdateDto,
+  ): Promise<JobResponseDto> {
+    const original = await this.findOne(id);
+    const updated = await this.prisma.job.update({
+      where: { id },
+      data: dto,
+      include: { assignedTo: true },
+    });
+
+    await this.createUpdateHistory(userId, id, original, dto);
+    return jobToResponse(updated);
+  }
+
   async remove(id: number, actorId: number): Promise<JobResponseDto> {
     const job = await this.findOne(id);
     await this.prisma.job.delete({ where: { id } });
@@ -145,6 +141,6 @@ export class JobService {
       eventType: JobHistoryEventType.DELETED,
     });
 
-    return jobToResponse(job);
+    return job;
   }
 }

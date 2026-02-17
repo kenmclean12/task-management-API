@@ -36,6 +36,6 @@ export class JobResponseDto {
   @ApiProperty()
   projectId: number;
 
-  @ApiPropertyOptional({ type: () => [UserResponseDto] })
-  assignedTo?: UserResponseDto[];
+  @ApiProperty({ type: () => [UserResponseDto] })
+  assignedTo: UserResponseDto[];
 }

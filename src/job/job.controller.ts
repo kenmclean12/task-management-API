@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   ParseIntPipe,
+  Req,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JobService } from './job.service';
@@ -48,22 +49,32 @@ export class JobController {
 
   @Post()
   @JobSwagger.create()
-  create(@Body() dto: JobCreateDto): Promise<JobResponseDto> {
-    return this.jobService.create(dto);
+  create(@Req() req, @Body() dto: JobCreateDto): Promise<JobResponseDto> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const userId = req.user.id as number;
+    return this.jobService.create(userId, dto);
   }
 
   @Patch(':id')
   @JobSwagger.update()
   update(
+    @Req() req,
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: JobUpdateDto,
   ): Promise<JobResponseDto> {
-    return this.jobService.update(id, dto);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const userId = req.user.id as number;
+    return this.jobService.update(id, userId, dto);
   }
 
   @Delete(':id')
   @JobSwagger.remove()
-  remove(@Param('id', ParseIntPipe) id: number): Promise<JobResponseDto> {
-    return this.jobService.remove(id);
+  remove(
+    @Req() req,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<JobResponseDto> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const userId = req.user.id as number;
+    return this.jobService.remove(id, userId);
   }
 }
