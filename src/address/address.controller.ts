@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AddressService } from './address.service';
@@ -42,24 +43,35 @@ export class AddressController {
 
   @Post()
   @AddressSwagger.create()
-  async create(@Body() dto: AddressCreateDto): Promise<AddressResponseDto> {
-    return await this.addressService.create(dto);
+  async create(
+    @Req() req,
+    @Body() dto: AddressCreateDto,
+  ): Promise<AddressResponseDto> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const userId = req.user.id as number;
+    return await this.addressService.create(userId, dto);
   }
 
   @Patch(':id')
   @AddressSwagger.update()
   async update(
+    @Req() req,
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: AddressUpdateDto,
   ): Promise<AddressResponseDto> {
-    return await this.addressService.update(id, dto);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const userId = req.user.id as number;
+    return await this.addressService.update(id, userId, dto);
   }
 
   @Delete(':id')
   @AddressSwagger.remove()
   async remove(
+    @Req() req,
     @Param('id', ParseIntPipe) id: number,
   ): Promise<AddressResponseDto> {
-    return await this.addressService.remove(id);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const userId = req.user.id as number;
+    return await this.addressService.remove(id, userId);
   }
 }

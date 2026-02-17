@@ -42,7 +42,6 @@ model User {
 
 enum UserHistoryEventType {
   CREATED
-  UPDATED
   DELETED
 
   EMAIL_CHANGED
@@ -93,7 +92,6 @@ model Address {
 
 enum AddressHistoryEventType {
   CREATED
-  UPDATED
   DELETED
 
   STREET_CHANGED
@@ -146,7 +144,6 @@ model Client {
 
 enum ClientHistoryEventType {
   CREATED
-  UPDATED
   DELETED
 
   EMAIL_CHANGED
@@ -215,7 +212,6 @@ model Project {
 
 enum ProjectHistoryEventType {
   CREATED
-  UPDATED
   DELETED
 
   NAME_CHANGED
@@ -275,7 +271,6 @@ model Job {
 
 enum JobHistoryEventType {
   CREATED
-  UPDATED
   DELETED
 
   TITLE_CHANGED
@@ -286,6 +281,7 @@ enum JobHistoryEventType {
   DUE_DATE_CHANGED
   FINISH_DATE_CHANGED
   PROJECT_CHANGED
+  ASSIGNED_USERS_CHANGED
 }
 
 enum JobField {

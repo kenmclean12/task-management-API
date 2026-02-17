@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "JobHistoryEventType" ADD VALUE 'ASSIGNED_USERS_CHANGED';
